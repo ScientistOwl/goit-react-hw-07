@@ -1,46 +1,37 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Formik, Field, Form, ErrorMessage } from "formik";
-import * as Yup from "yup";
-import { nanoid } from "nanoid";
-import { addContact } from "../../redux/contactsSlice";
-
-const validationSchema = Yup.object({
-  name: Yup.string()
-    .required("Name is required")
-    .min(3, "Name must be at least 3 characters")
-    .max(50, "Name cannot exceed 50 characters"),
-  number: Yup.string()
-    .required("Number is required")
-    .matches(/^[\d+\-]+$/, "Number must contain only digits, '+' or '-'"),
-});
+import { addContact } from "../../redux/contactsOps";
 
 const ContactForm = () => {
   const dispatch = useDispatch();
+  const [name, setName] = useState("");
+  const [number, setNumber] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(addContact({ name, number }));
+    setName("");
+    setNumber("");
+  };
 
   return (
-    <Formik
-      initialValues={{ name: "", number: "" }}
-      validationSchema={validationSchema}
-      onSubmit={(values, { resetForm }) => {
-        dispatch(addContact({ id: nanoid(), ...values }));
-        resetForm();
-      }}
-    >
-      <Form>
-        <label>
-          Name
-          <Field name="name" type="text" />
-          <ErrorMessage name="name" component="div" />
-        </label>
-        <label>
-          Number
-          <Field name="number" type="text" />
-          <ErrorMessage name="number" component="div" />
-        </label>
-        <button type="submit">Add Contact</button>
-      </Form>
-    </Formik>
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Name"
+        required
+      />
+      <input
+        type="tel"
+        value={number}
+        onChange={(e) => setNumber(e.target.value)}
+        placeholder="Number"
+        required
+      />
+      <button type="submit">Add Contact</button>
+    </form>
   );
 };
 
